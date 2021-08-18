@@ -3,6 +3,7 @@ package main
 import (
 	"strconv"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -13,20 +14,23 @@ func main() {
 	app := app.New()
 	window := app.NewWindow("math_practice")
 
-	addCard := mkNewCheckCard("Addition")
-	subCard := mkNewCheckCard("Subtraction")
-	mltCard := mkNewCheckCard("Multiplication")
-	topSection := container.NewGridWithColumns(3, addCard, subCard, mltCard)
+	addCrd := mkNewCheckCard("Addition")
+	subCrd := mkNewCheckCard("Subtraction")
+	mltCrd := mkNewCheckCard("Multiplication")
 
-	numOfProblems := mkNewSliderCard(10, 90, 999, "How many problems?")
-	timerSlider := mkNewSliderCard(1, 60, 999, "Seconds per problem?")
-	reShuffleSlider := mkNewSliderCard(1, 10, 99, "Reshuffle times?")
+	numProbsSld := mkNewSliderCard(10, 90, 999, "How many problems?")
+	timeSld := mkNewSliderCard(1, 20, 999, "Seconds per problem?")
+	reShufSld := mkNewSliderCard(1, 5, 99, "Reshuffle times?")
 
-	btmRow := container.NewGridWithColumns(
-		3, numOfProblems, timerSlider, reShuffleSlider)
+	startBtn := widget.NewButton("Start", func() {})
+	startBtn.Importance = widget.HighImportance
 
-	cont := container.NewBorder(nil, btmRow, nil, nil, topSection)
+	checkCrds := container.NewGridWithColumns(3, addCrd, subCrd, mltCrd)
+	sliders := container.NewGridWithColumns(3, numProbsSld, timeSld, reShufSld)
+	slidersAndStartBtn := container.NewVBox(sliders, startBtn)
+	cont := container.NewBorder(nil, slidersAndStartBtn, nil, nil, checkCrds)
 
+	window.Resize(fyne.NewSize(870, 365))
 	window.SetContent(cont)
 	window.ShowAndRun()
 }
@@ -62,13 +66,12 @@ func mkNewCheckCard(mathType string) *widget.Card {
 	btnCont := container.NewGridWithColumns(2, (checkAllBoxesBtn), (uncheckAllBoxesBtn))
 
 	// put all check boxes in a container in a grid pattern
-	row1 := container.NewGridWithColumns(
-		4, chkBxs[1], chkBxs[2], chkBxs[3], chkBxs[4])
-	row2 := container.NewGridWithColumns(
-		4, chkBxs[5], chkBxs[6], chkBxs[7], chkBxs[8])
-	row3 := container.NewGridWithColumns(
-		4, chkBxs[9], chkBxs[10], chkBxs[11], chkBxs[12])
-	chkBxGrid := container.NewGridWithRows(3, row1, row2, row3)
+	chkBxGrid := container.NewAdaptiveGrid(
+		4,
+		chkBxs[1], chkBxs[2], chkBxs[3], chkBxs[4],
+		chkBxs[5], chkBxs[6], chkBxs[7], chkBxs[8],
+		chkBxs[9], chkBxs[10], chkBxs[11], chkBxs[12],
+	)
 
 	// put the button container and the check box container together in a
 	// vertical layout
