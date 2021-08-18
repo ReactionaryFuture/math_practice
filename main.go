@@ -3,7 +3,6 @@ package main
 import (
 	"strconv"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -17,17 +16,18 @@ func main() {
 	addCard := mkNewCheckCard("Addition")
 	subCard := mkNewCheckCard("Subtraction")
 	mltCard := mkNewCheckCard("Multiplication")
-	checkCards := container.NewGridWithColumns(3, addCard, subCard, mltCard)
+	topSection := container.NewGridWithColumns(3, addCard, subCard, mltCard)
 
-	numOfProblems := mkNewSliderCard(10, 50, 999, "How many problems?")
-	timerSlider := mkNewSliderCard(1, 20, 999, "Seconds per problem?")
+	numOfProblems := mkNewSliderCard(10, 90, 999, "How many problems?")
+	timerSlider := mkNewSliderCard(1, 60, 999, "Seconds per problem?")
 	reShuffleSlider := mkNewSliderCard(1, 10, 99, "Reshuffle times?")
-	sliderCards := container.NewGridWithColumns(3, numOfProblems, timerSlider, reShuffleSlider)
 
-	cont := container.NewVBox(checkCards, sliderCards)
+	btmRow := container.NewGridWithColumns(
+		3, numOfProblems, timerSlider, reShuffleSlider)
+
+	cont := container.NewBorder(nil, btmRow, nil, nil, topSection)
 
 	window.SetContent(cont)
-	window.Resize(fyne.NewSize(300, 1))
 	window.ShowAndRun()
 }
 
@@ -72,7 +72,7 @@ func mkNewCheckCard(mathType string) *widget.Card {
 
 	// put the button container and the check box container together in a
 	// vertical layout
-	finalLayout := container.NewVBox(btnCont, chkBxGrid)
+	finalLayout := container.NewBorder(btnCont, nil, nil, nil, chkBxGrid)
 
 	// wrap finalLayout in a card
 	card := widget.NewCard(mathType, "", finalLayout)
