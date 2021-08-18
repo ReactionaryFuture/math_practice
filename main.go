@@ -63,7 +63,7 @@ func mkNewCheckCard(mathType string) *widget.Card {
 	})
 
 	// put both buttons in a container with horizontal layout
-	btnCont := container.NewGridWithColumns(2, (checkAllBoxesBtn), (uncheckAllBoxesBtn))
+	btnCont := container.NewGridWithColumns(2, checkAllBoxesBtn, uncheckAllBoxesBtn)
 
 	// put all check boxes in a container in a grid pattern
 	chkBxGrid := container.NewAdaptiveGrid(
