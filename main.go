@@ -3,6 +3,7 @@ package main
 import (
 	"strconv"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -13,20 +14,21 @@ func main() {
 	app := app.New()
 	window := app.NewWindow("math_practice")
 
-	//testCheckCard := NewCheckCard("Addition")
-	testSliderCard := newSliderCard(1, 10, 99, "test")
+	test := NewOptionsScreen()
 
-	/*
-		go func() {
-			for {
-				time.Sleep(time.Second)
-				fmt.Println(testSliderCard.selection.Get())
-			}
-		}()
-	*/
-
-	window.SetContent(&testSliderCard.card)
+	window.SetContent(test.canvasObject)
 	window.ShowAndRun()
+}
+
+type OptionsScreen struct {
+	addCheckCard CheckCard
+	subCheckCard CheckCard
+	mltCheckCard CheckCard
+	numOfProbs   SliderCard
+	time         SliderCard
+	reshufTimes  SliderCard
+	startBtn     widget.Button
+	canvasObject *fyne.Container
 }
 
 type CheckCard struct {
@@ -39,37 +41,51 @@ type SliderCard struct {
 	canvasObject widget.Card
 }
 
+func NewOptionsScreen() OptionsScreen {
+	addCrd := NewCheckCard("Addition")
+	subCrd := NewCheckCard("Subtraction")
+	mltCrd := NewCheckCard("Multiplication")
+
+	numOfProbs := NewSliderCard(10, 90, 999, "How many problems?")
+	time := NewSliderCard(1, 20, 999, "Seconds per problem?")
+	reshuf := NewSliderCard(1, 5, 99, "Reshuffle times?")
+
+	startBtn := widget.NewButton("Start", func() {})
+	startBtn.Importance = widget.HighImportance
+
+	checkCrds := container.NewGridWithColumns(
+		3, &addCrd.canvasObject, &subCrd.canvasObject, &mltCrd.canvasObject)
+	sliders := container.NewGridWithColumns(
+		3, &numOfProbs.canvasObject, &time.canvasObject, &reshuf.canvasObject)
+	slidersAndStartBtn := container.NewVBox(sliders, startBtn)
+	cont := container.NewBorder(nil, slidersAndStartBtn, nil, nil, checkCrds)
+
+	optionsScreen := &OptionsScreen{
+		addCheckCard: addCrd,
+		subCheckCard: subCrd,
+		mltCheckCard: mltCrd,
+		numOfProbs:   numOfProbs,
+		time:         time,
+		reshufTimes:  reshuf,
+		startBtn:     *startBtn,
+		canvasObject: cont,
+	}
+	return *optionsScreen
+}
+
 func NewCheckCard(mathType string) CheckCard {
 	// this function makes a widget.Card for a math type (i.e. + - *)
 	// with check boxes that allow the inclusion or exclusion of various
 	// tables (i.e. multiplication tables)
 
-	// make check boxes for number sets 1 through 12 and set them to checked
+	// make check boxes for number sets 1 through 12, set them to checked
+	// and put all check boxes in a grid pattern container
 	var chkBxs []*widget.Check
 	for i := 0; i <= 12; i++ {
 		temp := widget.NewCheck(strconv.Itoa(i)+"s", func(bool) {})
 		temp.SetChecked(true)
 		chkBxs = append(chkBxs, temp)
 	}
-
-	// make button to check all boxes
-	checkAllBoxesBtn := widget.NewButton("Check all", func() {
-		for _, chkBx := range chkBxs {
-			chkBx.SetChecked(true)
-		}
-	})
-
-	// make button to uncheck all boxes
-	uncheckAllBoxesBtn := widget.NewButton("Uncheck all", func() {
-		for _, chkBx := range chkBxs {
-			chkBx.SetChecked(false)
-		}
-	})
-
-	// put both buttons in a container with horizontal layout
-	btnCont := container.NewGridWithColumns(2, checkAllBoxesBtn, uncheckAllBoxesBtn)
-
-	// put all check boxes in a container in a grid pattern
 	chkBxGrid := container.NewAdaptiveGrid(
 		4,
 		chkBxs[1], chkBxs[2], chkBxs[3], chkBxs[4],
@@ -77,31 +93,42 @@ func NewCheckCard(mathType string) CheckCard {
 		chkBxs[9], chkBxs[10], chkBxs[11], chkBxs[12],
 	)
 
-	// put the button container and the check box container together in a
-	// vertical layout
-	finalLayout := container.NewBorder(btnCont, nil, nil, nil, chkBxGrid)
+	// make button to check and uncheck all boxes and put the
+	// the buttons in a horizontal layout
+	chkAllBxsBtn := widget.NewButton("Check all", func() {
+		for _, chkBx := range chkBxs {
+			chkBx.SetChecked(true)
+		}
+	})
+	unchkAllBxsBtn := widget.NewButton("Uncheck all", func() {
+		for _, chkBx := range chkBxs {
+			chkBx.SetChecked(false)
+		}
+	})
+	btnCont := container.NewGridWithColumns(2, chkAllBxsBtn, unchkAllBxsBtn)
 
-	// wrap finalLayout in a card
-	myCard := widget.NewCard(mathType, "", finalLayout)
+	// stack the buttons and check boxes in a vertical layout and wrap
+	// them in a card widget
+	combined := container.NewBorder(btnCont, nil, nil, nil, chkBxGrid)
+	card := widget.NewCard(mathType, "", combined)
 
-	final := &CheckCard{
+	// make and return the checkCard struct
+	checkCard := &CheckCard{
 		checkBoxes:   chkBxs,
-		canvasObject: *myCard,
+		canvasObject: *card,
 	}
-
-	// return the card and the state map
-	return *final
+	return *checkCard
 }
 
-func newSliderCard(sliderMin, sliderMax, maxVal int, label string) SliderCard {
+func NewSliderCard(sliderMin, sliderMax, maxVal int, label string) SliderCard {
 	// this function returns a widget.Card with slider and entry widgets
 	// that are bound together
 
 	// make slider and slider widgets that are bound toether
-	data := binding.NewFloat()
-	data.Set(float64((sliderMin + sliderMax) / 2))
-	entry := widget.NewEntryWithData(binding.FloatToStringWithFormat(data, "%v"))
-	slide := widget.NewSliderWithData(float64(sliderMin), float64(sliderMax), data)
+	value := binding.NewFloat()
+	value.Set(float64((sliderMin + sliderMax) / 2))
+	entry := widget.NewEntryWithData(binding.FloatToStringWithFormat(value, "%v"))
+	slide := widget.NewSliderWithData(float64(sliderMin), float64(sliderMax), value)
 
 	// check entry for soundness. set to half max for entries that can
 	// not be easily converted to ints and set to maxValue for entries
@@ -111,24 +138,23 @@ func newSliderCard(sliderMin, sliderMax, maxVal int, label string) SliderCard {
 		if s == "" {
 			return
 		} else if err != nil {
-			data.Set(float64((sliderMin + sliderMax) / 2))
+			value.Set(float64((sliderMin + sliderMax) / 2))
 		} else if i > maxVal {
-			data.Set(float64(maxVal))
+			value.Set(float64(maxVal))
 		} else {
-			data.Set(float64(i))
+			value.Set(float64(i))
 		}
 	}
 
-	// make a container with layout for the widgets
-	cont := container.NewBorder(nil, nil, nil, entry, slide)
+	// combine the slider and entry boxes in a horizontal layout and wrap
+	// them in a card widget
+	combined := container.NewBorder(nil, nil, nil, entry, slide)
+	card := widget.NewCard("", label, combined)
 
-	// wrap container in card
-	myCard := widget.NewCard("", label, cont)
-
+	// make and return the sliderCard struct
 	sliderCard := &SliderCard{
-		selection: data,
-		card:      *myCard,
+		selection:    value,
+		canvasObject: *card,
 	}
-
 	return *sliderCard
 }
