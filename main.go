@@ -27,18 +27,8 @@ type OptionsScreen struct {
 	numOfProbs   SliderCard
 	time         SliderCard
 	reshufTimes  SliderCard
-	startBtn     widget.Button
+	startBtn     *widget.Button
 	canvasObject *fyne.Container
-}
-
-type CheckCard struct {
-	checkBoxes   []*widget.Check
-	canvasObject widget.Card
-}
-
-type SliderCard struct {
-	selection    binding.Float
-	canvasObject widget.Card
 }
 
 func NewOptionsScreen() OptionsScreen {
@@ -67,10 +57,15 @@ func NewOptionsScreen() OptionsScreen {
 		numOfProbs:   numOfProbs,
 		time:         time,
 		reshufTimes:  reshuf,
-		startBtn:     *startBtn,
+		startBtn:     startBtn,
 		canvasObject: cont,
 	}
 	return *optionsScreen
+}
+
+type CheckCard struct {
+	checkBoxes   []*widget.Check
+	canvasObject widget.Card
 }
 
 func NewCheckCard(mathType string) CheckCard {
@@ -120,6 +115,11 @@ func NewCheckCard(mathType string) CheckCard {
 	return *checkCard
 }
 
+type SliderCard struct {
+	selection    binding.Float
+	canvasObject widget.Card
+}
+
 func NewSliderCard(sliderMin, sliderMax, maxVal int, label string) SliderCard {
 	// this function returns a widget.Card with slider and entry widgets
 	// that are bound together
@@ -127,8 +127,10 @@ func NewSliderCard(sliderMin, sliderMax, maxVal int, label string) SliderCard {
 	// make slider and slider widgets that are bound toether
 	value := binding.NewFloat()
 	value.Set(float64((sliderMin + sliderMax) / 2))
-	entry := widget.NewEntryWithData(binding.FloatToStringWithFormat(value, "%v"))
-	slide := widget.NewSliderWithData(float64(sliderMin), float64(sliderMax), value)
+	entry := widget.NewEntryWithData(
+		binding.FloatToStringWithFormat(value, "%v"))
+	slide := widget.NewSliderWithData(
+		float64(sliderMin), float64(sliderMax), value)
 
 	// check entry for soundness. set to half max for entries that can
 	// not be easily converted to ints and set to maxValue for entries
