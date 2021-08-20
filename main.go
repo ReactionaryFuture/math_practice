@@ -32,9 +32,9 @@ type OptionsScreen struct {
 }
 
 func NewOptionsScreen() OptionsScreen {
-	addCrd := NewCheckCard("Addition")
-	subCrd := NewCheckCard("Subtraction")
-	mltCrd := NewCheckCard("Multiplication")
+	additionCheckCard := NewCheckCard("Addition")
+	subtractionCheckCard := NewCheckCard("Subtraction")
+	multiplicationCheckCard := NewCheckCard("Multiplication")
 
 	numOfProbs := NewSliderCard(10, 90, 999, "How many problems?")
 	time := NewSliderCard(1, 20, 999, "Seconds per problem?")
@@ -43,12 +43,26 @@ func NewOptionsScreen() OptionsScreen {
 	startBtn := widget.NewButton("Start", func() {})
 	startBtn.Importance = widget.HighImportance
 
-	checkCrds := container.NewGridWithColumns(
-		3, &addCrd.canvasObject, &subCrd.canvasObject, &mltCrd.canvasObject)
-	sliders := container.NewGridWithColumns(
-		3, &numOfProbs.canvasObject, &time.canvasObject, &reshuf.canvasObject)
-	slidersAndStartBtn := container.NewVBox(sliders, startBtn)
-	cont := container.NewBorder(nil, slidersAndStartBtn, nil, nil, checkCrds)
+	canvasObject := container.NewBorder(
+		nil,
+		container.NewVBox(
+			container.NewGridWithColumns(
+				3,
+				&numOfProbs.canvasObject,
+				&time.canvasObject,
+				&reshuf.canvasObject,
+			),
+			startBtn,
+		),
+		nil,
+		nil,
+		container.NewGridWithColumns(
+			3,
+			&addCrd.canvasObject,
+			&subCrd.canvasObject,
+			&mltCrd.canvasObject,
+		),
+	)
 
 	optionsScreen := &OptionsScreen{
 		addCheckCard: addCrd,
@@ -58,7 +72,7 @@ func NewOptionsScreen() OptionsScreen {
 		time:         time,
 		reshufTimes:  reshuf,
 		startBtn:     startBtn,
-		canvasObject: cont,
+		canvasObject: canvasObject,
 	}
 	return *optionsScreen
 }
