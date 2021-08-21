@@ -15,21 +15,40 @@ import (
 func main() {
 	app := app.New()
 	window := app.NewWindow("math_practice")
-	//app.Settings().SetTheme(&BigTextTheme{})
 
-	test := NewCheckAndButtonGroup("Addition")
+	optionsScreen := NewOptionsScreen()
+	window.SetContent(optionsScreen.canvasObject)
+	optionsScreen.startButton.OnTapped = func() {
+		go startClicked(app, window, optionsScreen)
+	}
 
-	window.SetContent(test.canvasObject)
 	window.ShowAndRun()
 }
 
+func startClicked(a fyne.App, w fyne.Window, o OptionsScreen) {
+	a.Settings().SetTheme(&BigTextTheme{})
+
+	var problems []string
+	for i := 0, i++, range o.additionToggles.checkBoxes {
+		if o.additionToggles.checkBoxes[i].Checked {
+			problems = append(problems, )
+		}
+	}
+
+	var questionScreen QuestionScreen
+	for {
+		questionScreen = NewQuestionScreen(getNewProblem())
+		w.SetContent(QuestionScreen.canvasObject)
+	}
+}
+
 type OptionsScreen struct {
-	additionToggles       CheckAndButtonGroup
-	subtractionToggles    CheckAndButtonGroup
-	multiplicationToggles CheckAndButtonGroup
+	additionToggles       ToggleIncludedGroup
+	subtractionToggles    ToggleIncludedGroup
+	multiplicationToggles ToggleIncludedGroup
 	numberOfProblems      SliderAndEntryGroup
 	timeLimitPerProblem   SliderAndEntryGroup
-	penaltyReshuffle      SliderAndEntryGroup
+	ReshufflePenalty      SliderAndEntryGroup
 	startButton           *widget.Button
 	canvasObject          *fyne.Container
 }
@@ -40,14 +59,14 @@ func NewOptionsScreen() OptionsScreen {
 	// to be reshuffled back in
 
 	// make check and button groups
-	additionToggles := NewCheckAndButtonGroup("Addition")
-	subtractionToggles := NewCheckAndButtonGroup("Subtraction")
-	multiplicationToggles := NewCheckAndButtonGroup("Multiplication")
+	additionToggles := NewToggleIncludedGroup("Addition")
+	subtractionToggles := NewToggleIncludedGroup("Subtraction")
+	multiplicationToggles := NewToggleIncludedGroup("Multiplication")
 
 	// make slider and entry groups
 	numberOfProblems := NewSliderAndEntryGroup(10, 90, 999, "How many problems?")
 	timeLimitPerProblem := NewSliderAndEntryGroup(1, 20, 999, "Seconds per problem?")
-	penaltyReshuffle := NewSliderAndEntryGroup(1, 5, 99, "Reshuffle times?")
+	ReshufflePenalty := NewSliderAndEntryGroup(1, 5, 99, "Reshuffle times?")
 
 	//make start button
 	startButton := widget.NewButton("Start", func() {})
@@ -61,7 +80,7 @@ func NewOptionsScreen() OptionsScreen {
 				3,
 				&numberOfProblems.canvasObject,
 				&timeLimitPerProblem.canvasObject,
-				&penaltyReshuffle.canvasObject,
+				&ReshufflePenalty.canvasObject,
 			),
 			startButton,
 		),
@@ -82,20 +101,20 @@ func NewOptionsScreen() OptionsScreen {
 		multiplicationToggles: multiplicationToggles,
 		numberOfProblems:      numberOfProblems,
 		timeLimitPerProblem:   timeLimitPerProblem,
-		penaltyReshuffle:      numberOfProblems,
+		ReshufflePenalty:      numberOfProblems,
 		startButton:           startButton,
 		canvasObject:          canvasObject,
 	}
 	return *optionsScreen
 }
 
-type QuestionPage struct {
+type QuestionScreen struct {
 	timer        *TimerBar
-	entry        widget.Entry
+	entry        *widget.Entry
 	canvasObject *fyne.Container
 }
 
-func NewQuestionPage(question string) QuestionPage {
+func NewQuestionScreen(question string) QuestionScreen {
 	// this function creates the interface where questions are administered and answers are given by the user
 
 	// create a timer bar at the top of the page to show the user how much more time he has before the question is
@@ -107,25 +126,26 @@ func NewQuestionPage(question string) QuestionPage {
 
 	//create the entry object where the user recieves his question and gives his answers
 	entry := widget.NewEntry()
+	entry.SetText(question)
 
 	// make the canvas object
 	canvasObject := container.NewBorder(timer, nil, nil, nil, entry)
 
-	// make and return the QuestionPage struct
-	questionPage := &QuestionPage{
+	// make and return the QuestionScreen struct
+	QuestionScreen := &QuestionScreen{
 		timer:        timer,
-		entry:        *entry,
+		entry:        entry,
 		canvasObject: canvasObject,
 	}
-	return *questionPage
+	return *QuestionScreen
 }
 
-type CheckAndButtonGroup struct {
+type ToggleIncludedGroup struct {
 	checkBoxes   []*widget.Check
 	canvasObject *widget.Card
 }
 
-func NewCheckAndButtonGroup(mathType string) CheckAndButtonGroup {
+func NewToggleIncludedGroup(mathType string) ToggleIncludedGroup {
 	// this function makes a widget.Card for a math type (i.e. + - *) with check boxes that allow the inclusion or
 	// exclusion of various tables (i.e. multiplication tables)
 
@@ -172,11 +192,11 @@ func NewCheckAndButtonGroup(mathType string) CheckAndButtonGroup {
 	)
 
 	// make and return the checkCard struct
-	checkAndButtonGroup := &CheckAndButtonGroup{
+	ToggleIncludedGroup := &ToggleIncludedGroup{
 		checkBoxes:   checkBoxes,
 		canvasObject: canvasObject,
 	}
-	return *checkAndButtonGroup
+	return *ToggleIncludedGroup
 }
 
 type SliderAndEntryGroup struct {
@@ -271,7 +291,7 @@ func (m BigTextTheme) Font(style fyne.TextStyle) fyne.Resource {
 
 func (m BigTextTheme) Size(name fyne.ThemeSizeName) float32 {
 	if name == theme.SizeNameText {
-		return 150
+		return 200
 	} else {
 		return theme.DefaultTheme().Size(name)
 	}
