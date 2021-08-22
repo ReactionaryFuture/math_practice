@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"image/color"
 	"strconv"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/theme"
@@ -62,24 +62,42 @@ var allMultiplicationProblems = []string{
 func main() {
 	app := app.New()
 	window := app.NewWindow("math_practice")
+	optionsScreen := NewOptionsScreen()
 
-	//optionsScreen := NewOptionsScreen()
+	optionsScreen.startButton.OnTapped = func() {
+		fmt.Println(makeProblems(optionsScreen.additionToggles))
+	}
 
-	/*
-		for i1, e1 := range optionsScreen.additionToggles.checkBoxes {
-			if e1.Checked {
-				for i2, e2 := range allAdditionProblems {
-					if e1.Text
-				}
-			}
-		}
-	*/
-
-	testString := "hello"
-	fmt.Println(testString[0:3])
-
-	window.SetContent(canvas.NewRectangle(color.White))
+	window.SetContent(optionsScreen.canvasObject)
 	window.ShowAndRun()
+}
+
+func makeProblems(toggles ToggleIncludedGroup) []string {
+	var operator string
+	switch toggles.canvasObject.Title {
+	case "Addition":
+		operator = "+"
+	case "Subtraxtion":
+		operator = "-"
+	case "Multiplication":
+		operator = "x"
+	}
+
+	var allChecked []string
+	for _, e := range toggles.checkBoxes {
+		if e.Checked {
+			allChecked = append(allChecked, strings.Trim(e.Text, "s"))
+		}
+	}
+
+	var problemsList []string
+	for _, e1 := range allChecked {
+		for _, e2 := range allChecked {
+			problemsList = append(problemsList, (e1 + operator + e2))
+		}
+	}
+
+	return problemsList
 }
 
 type OptionsScreen struct {
@@ -191,8 +209,8 @@ func NewToggleIncludedGroup(mathType string) ToggleIncludedGroup {
 
 	// make check boxes for number sets 1 through 12 and set them all to checked
 	var checkBoxes []*widget.Check
-	for i := 0; i <= 12; i++ {
-		temp := widget.NewCheck(strconv.Itoa(i)+"s", func(bool) {})
+	for i := 0; i <= 11; i++ {
+		temp := widget.NewCheck(strconv.Itoa(i+1)+"s", func(bool) {})
 		temp.SetChecked(true)
 		checkBoxes = append(checkBoxes, temp)
 	}
@@ -224,9 +242,9 @@ func NewToggleIncludedGroup(mathType string) ToggleIncludedGroup {
 			nil,
 			container.NewAdaptiveGrid(
 				4,
-				checkBoxes[1], checkBoxes[2], checkBoxes[3], checkBoxes[4],
-				checkBoxes[5], checkBoxes[6], checkBoxes[7], checkBoxes[8],
-				checkBoxes[9], checkBoxes[10], checkBoxes[11], checkBoxes[12],
+				checkBoxes[0], checkBoxes[1], checkBoxes[2], checkBoxes[3],
+				checkBoxes[4], checkBoxes[5], checkBoxes[6], checkBoxes[7],
+				checkBoxes[8], checkBoxes[9], checkBoxes[10], checkBoxes[11],
 			),
 		),
 	)
