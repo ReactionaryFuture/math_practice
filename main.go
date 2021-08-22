@@ -165,9 +165,9 @@ func NewToggleIncludedGroup(mathType string) ToggleIncludedGroup {
 	// make check boxes for number sets 1 through 12 and set them all to checked
 	var checkBoxes []*widget.Check
 	for i := 0; i <= 11; i++ {
-		temp := widget.NewCheck(strconv.Itoa(i+1)+"s", func(bool) {})
-		temp.SetChecked(true)
-		checkBoxes = append(checkBoxes, temp)
+		checkBox := widget.NewCheck(strconv.Itoa(i+1)+"s", func(bool) {})
+		checkBox.SetChecked(true)
+		checkBoxes = append(checkBoxes, checkBox)
 	}
 
 	// make buttons to check and uncheck all check boxes
