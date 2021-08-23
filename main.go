@@ -1,17 +1,16 @@
 package main
 
 import (
-	"github/ReactionaryFuture/math_practice/ui"
+	"image/color"
 
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 )
 
 func main() {
 	app := app.New()
 	window := app.NewWindow("math_practice")
 
-	optionsScreen := ui.NewOptionsScreen()
-
-	window.SetContent(optionsScreen.CanvasObject)
+	window.SetContent(canvas.NewRectangle(color.White))
 	window.ShowAndRun()
 }
