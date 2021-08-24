@@ -12,14 +12,12 @@ import (
 )
 
 type OptionsScreen struct {
-	additionToggles       ToggleIncludedGroup
-	subtractionToggles    ToggleIncludedGroup
-	multiplicationToggles ToggleIncludedGroup
-	numberOfProblems      SliderAndEntryGroup
-	timeLimitPerProblem   SliderAndEntryGroup
-	ReshufflePenalty      SliderAndEntryGroup
-	startButton           *widget.Button
-	CanvasObject          *fyne.Container
+	mathToggles         [][]*widget.Check
+	numberOfProblems    SliderAndEntryGroup
+	timeLimitPerProblem SliderAndEntryGroup
+	ReshufflePenalty    SliderAndEntryGroup
+	startButton         *widget.Button
+	CanvasObject        *fyne.Container
 }
 
 func NewOptionsScreen() OptionsScreen {
@@ -31,6 +29,11 @@ func NewOptionsScreen() OptionsScreen {
 	additionToggles := NewToggleIncludedGroup("Addition")
 	subtractionToggles := NewToggleIncludedGroup("Subtraction")
 	multiplicationToggles := NewToggleIncludedGroup("Multiplication")
+
+	var mathToggles [][]*widget.Check
+	mathToggles = append(mathToggles, additionToggles.checkBoxes)
+	mathToggles = append(mathToggles, subtractionToggles.checkBoxes)
+	mathToggles = append(mathToggles, multiplicationToggles.checkBoxes)
 
 	// make slider and entry groups
 	numberOfProblems := NewSliderAndEntryGroup(10, 90, 999, "How many problems?")
@@ -65,14 +68,12 @@ func NewOptionsScreen() OptionsScreen {
 
 	// make and return the OptionsScreen struct
 	optionsScreen := &OptionsScreen{
-		additionToggles:       additionToggles,
-		subtractionToggles:    subtractionToggles,
-		multiplicationToggles: multiplicationToggles,
-		numberOfProblems:      numberOfProblems,
-		timeLimitPerProblem:   timeLimitPerProblem,
-		ReshufflePenalty:      numberOfProblems,
-		startButton:           startButton,
-		CanvasObject:          canvasObject,
+		mathToggles:         mathToggles,
+		numberOfProblems:    numberOfProblems,
+		timeLimitPerProblem: timeLimitPerProblem,
+		ReshufflePenalty:    numberOfProblems,
+		startButton:         startButton,
+		CanvasObject:        canvasObject,
 	}
 	return *optionsScreen
 }
